@@ -25,6 +25,7 @@
     "dot-env": "^0.0.1",
     "dotenv": "^8.2.0",
     "eslint": "6.5.1",
+    "jenkins": "^0.28.1",
     "testcafe-reporter-slack": "^0.0.6"
   }
 }
