@@ -24,7 +24,7 @@ test('Successful login and logout', async t => {
     // Todoist Home Page
     await landing.validateHomePage ();
 });
-/*
+
 test('Set no credentials and validate error message', async t => {
     // Todoist Home Page
     await landing.validateHomePageAndClickLogin();
@@ -60,4 +60,3 @@ test('Set wrong credentials and validate error message', async t => {
     await login.loginFlow(process.env.TODOIST_USERNAME, process.env.TODOIST_INVALID_PASSWORD);                              
     await login.validateErrorMessage('Wrong email or password.');
 });
-*/
