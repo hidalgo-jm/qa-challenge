@@ -6,10 +6,10 @@
   "scripts": {
     "loginScenarios": "testcafe chrome ./fixtures/loginScenarios.js",
     "todoistScenarios": "testcafe chrome ./fixtures/todoistScenarios.js",
-    "loginScenariosFirefox83Win10": "testcafe 'browserstack:firefox@83.0:Windows 10' ./fixtures/loginScenarios.js",
-    "todoistScenariosFirefox83Win10": "testcafe 'browserstack:firefox@83.0:Windows 10'  ./fixtures/todoistScenarios.js",
-    "loginScenariosParallelEdge87IE11Win10": "testcafe 'browserstack:edge@87.0:Windows 8.1','browserstack:Safari@6,2:OS X Mountain Lion' ./fixtures/loginScenarios.js",
-    "todoistScenariosParallelEdge87IE11Win10": "testcafe 'browserstack:edge@87.0:Windows 8.1','browserstack:ie@11.0:OS X Mountain Lion' ./fixtures/todoistScenarios.js"
+    "loginScenariosWin10": "testcafe 'browserstack:firefox@83.0:Windows 10' ./fixtures/loginScenarios.js",
+    "todoistScenariosWin10": "testcafe 'browserstack:firefox@83.0:Windows 10'  ./fixtures/todoistScenarios.js",
+    "loginScenariosParallel": "testcafe 'browserstack:firefox@83.0:Windows 10','browserstack:edge@87.0:Windows 10' ./fixtures/loginScenarios.js",
+    "todoistScenariosParallel": "testcafe 'browserstack:firefox@83.0:Windows 10','browserstack:edge@87.0:Windows 10' ./fixtures/todoistScenarios.js"
   },
   "repository": {
     "type": "git",
@@ -22,7 +22,6 @@
   },
   "homepage": "https://github.com/hidalgo-jm/qa-challenge#readme",
   "dependencies": {
-    "dot-env": "^0.0.1",
     "dotenv": "^8.2.0",
     "eslint": "6.5.1",
     "jenkins": "^0.28.1",

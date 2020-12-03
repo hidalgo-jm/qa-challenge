@@ -11,8 +11,8 @@ class Dashboard {
         this.cancelButton = Selector('.cancel');
         this.taskLabel = Selector('.markdown_content');
         this.deleteHighlightedTaskButton = Selector('li[data-action-hint="task-overflow-menu-delete"]');
-        this.settingsButton = Selector('button[aria-label="Setting"]');
-        this.settingsMenuOption = Selector('.usermenu__row-label');
+        this.settingsButton = Selector('button[aria-label="Settings"]');
+        this.settingsMenuOption = Selector('.user_menu_label');
     }
 
     async validateDashboard () {
@@ -35,7 +35,8 @@ class Dashboard {
 
     async clickAddTask () {
         await t
-            .click(this.addTaskButton);                                                             // Click on Add Task button
+            .click(this.addTaskButton)                                                              // Click on Add Task button
+            .wait(3000);                                                                            // Wait 3 seconds for Add Task textbox to load
     }
 
     async setNewTaskNameAndAdd (taskName) {
