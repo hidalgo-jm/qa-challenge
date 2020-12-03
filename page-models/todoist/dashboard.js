@@ -16,10 +16,14 @@ class Dashboard {
     }
 
     async validateDashboard () {
-        await t.expect(Selector(this.todoistApp).exists).ok();                                      // Validate Todoist App is loaded after login
+        await t
+            .wait(5000)                                                                             // Wait 5 seconds for dashboard to load
+            .expect(Selector(this.todoistApp).exists).ok();                                         // Validate Todoist App is loaded after login
 
-        if (this.timeZoneUpdateButton.exists){                                                      // Validate if Time Zone update button exists
-            await t.click(this.timeZoneUpdateButton);                                               // If exists, click on Time Zone update button
+        if (await this.timeZoneUpdateButton.exists){                                                // Validate if Time Zone update button exists
+            await t
+                .click(this.timeZoneUpdateButton)                                                   // If exists, click on Time Zone update button
+                .wait(5000);                                                                        // Wait 5 seconds for dashboard to update
         }
     }
 

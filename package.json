@@ -8,8 +8,8 @@
     "todoistScenarios": "testcafe chrome ./fixtures/todoistScenarios.js",
     "loginScenariosFirefox83Win10": "testcafe 'browserstack:firefox@83.0:Windows 10' ./fixtures/loginScenarios.js",
     "todoistScenariosFirefox83Win10": "testcafe 'browserstack:firefox@83.0:Windows 10'  ./fixtures/todoistScenarios.js",
-    "loginScenariosParallelEdge87IE11Win10": "testcafe 'browserstack:edge@87.0:Windows 10', 'browserstack:ie@11.0:Windows 10' ./fixtures/loginScenarios.js",
-    "todoistScenariosParallelEdge87IE11Win10": "testcafe 'browserstack:edge@87.0:Windows 10', 'browserstack:ie@11.0:Windows 10' ./fixtures/todoistScenarios.js"
+    "loginScenariosParallelEdge87IE11Win10": "testcafe 'browserstack:edge@87.0:Windows 10','browserstack:ie@11.0:Windows 10' ./fixtures/loginScenarios.js",
+    "todoistScenariosParallelEdge87IE11Win10": "testcafe 'browserstack:edge@87.0:Windows 10','browserstack:ie@11.0:Windows 10' ./fixtures/todoistScenarios.js"
   },
   "repository": {
     "type": "git",
