@@ -14,12 +14,12 @@ class Login {
         await t
             .expect(Selector(this.loginForm).exists).ok();                              // Validate Login label is displayed
             
-        if(user.length > 0) {
+        if(user != "") {
             await t
                 .typeText(this.emailTextbox, user);                                     // Set email
         }
 
-        if(password.length > 0) {
+        if(password != "") {
             await t
                 .typeText(this.passwordTextbox, password);                              // Set password
         }
