@@ -6,20 +6,20 @@ import dashboard from '../page-models/todoist/dashboard';
 const dotenv = require('dotenv');
 dotenv.config({ path: './.env' });
 
-fixture `Todoist tests`
+fixture `Todoist login tests`
     .page (process.env.TODOIST_URL);
 
 // Test(s)
 test('Successful login and logout', async t => {
     // Todoist Home Page
-    await landing.validateHomePageAndClickLogin();
+    await landing.validateHomePageAndClickLogin ();
     
     // Login Page
-    await login.loginFlow(process.env.TODOIST_USERNAME, process.env.TODOIST_PASSWORD);
+    await login.loginFlow (process.env.TODOIST_USERNAME, process.env.TODOIST_PASSWORD);
 
     // Todoist App
-    await dashboard.validateDashboard();
-    await dashboard.logout();
+    await dashboard.validateDashboard ();
+    await dashboard.logout ();
 
     // Todoist Home Page
     await landing.validateHomePage ();

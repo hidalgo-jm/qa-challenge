@@ -3,6 +3,7 @@ import { Selector, t } from 'testcafe';
 class Dashboard {
     constructor () {
         this.todoistApp = Selector('#todoist_app');
+        this.timeZoneUpdateButton = Selector('.ist_button');
         this.addTaskButton = Selector('.plus_add_button');
         this.quickAddTask = Selector('button[aria-label="Quick Add"]');
         this.newTaskTextbox = Selector('div[role="textbox"]');
@@ -15,8 +16,11 @@ class Dashboard {
     }
 
     async validateDashboard () {
-        await t
-            .expect(Selector(this.todoistApp).exists).ok()                                         // Validate Todoist App is loaded after login
+        await t.expect(Selector(this.todoistApp).exists).ok();                                      // Validate Todoist App is loaded after login
+
+        if (this.timeZoneUpdateButton.exists){                                                      // Validate if Time Zone update button exists
+            await t.click(this.timeZoneUpdateButton);                                               // If exists, click on Time Zone update button
+        }
     }
 
     async logout () {
