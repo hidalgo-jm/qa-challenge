@@ -4,12 +4,12 @@
   "description": "Wizeline QA Challenge",
   "main": "index.js",
   "scripts": {
-    "loginScenarios": "testcafe chrome ./fixtures/loginScenarios.js",
-    "todoistScenarios": "testcafe chrome ./fixtures/todoistScenarios.js",
-    "loginScenariosWin10": "testcafe 'browserstack:firefox@83.0:Windows 10' ./fixtures/loginScenarios.js",
-    "todoistScenariosWin10": "testcafe 'browserstack:firefox@83.0:Windows 10'  ./fixtures/todoistScenarios.js",
-    "loginScenariosParallel": "testcafe 'browserstack:firefox@83.0:Windows 10','browserstack:edge@87.0:Windows 10' ./fixtures/loginScenarios.js",
-    "todoistScenariosParallel": "testcafe 'browserstack:firefox@83.0:Windows 10','browserstack:edge@87.0:Windows 10' ./fixtures/todoistScenarios.js"
+    "loginScenarios": "testcafe chrome ./fixtures/loginScenarios.js --reporter html:reports/report.html",
+    "todoistScenarios": "testcafe chrome ./fixtures/todoistScenarios.js --reporter html:reports/report.html",
+    "loginScenariosWin10": "testcafe 'browserstack:firefox@83.0:Windows 10' ./fixtures/loginScenarios.js --reporter html:reports/report.html",
+    "todoistScenariosWin10": "testcafe 'browserstack:firefox@83.0:Windows 10'  ./fixtures/todoistScenarios.js --reporter html:reports/report.html",
+    "loginScenariosParallel": "testcafe 'browserstack:firefox@83.0:Windows 10','browserstack:edge@87.0:Windows 10' ./fixtures/loginScenarios.js --reporter html:reports/report.html",
+    "todoistScenariosParallel": "testcafe 'browserstack:firefox@83.0:Windows 10','browserstack:edge@87.0:Windows 10' ./fixtures/todoistScenarios.js --reporter html:reports/report.html"
   },
   "repository": {
     "type": "git",
@@ -25,6 +25,7 @@
     "dotenv": "^8.2.0",
     "eslint": "6.5.1",
     "jenkins": "^0.28.1",
+    "testcafe-reporter-html": "^1.4.6",
     "testcafe-reporter-slack": "^0.0.6"
   }
 }

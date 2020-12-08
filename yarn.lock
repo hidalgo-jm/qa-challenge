@@ -236,11 +236,6 @@
   dependencies:
     "esutils" "^2.0.2"
 
-"dot-env@^0.0.1":
-  "integrity" "sha1-5ENMuMaRQ+RFvCinKUN+T6vYjIA="
-  "resolved" "https://registry.npmjs.org/dot-env/-/dot-env-0.0.1.tgz"
-  "version" "0.0.1"
-
 "dotenv@^4.0.0":
   "integrity" "sha1-hk7xN5rO1Vzm+V3r7NzhefegzR0="
   "resolved" "https://registry.npmjs.org/dotenv/-/dotenv-4.0.0.tgz"
@@ -1036,6 +1031,11 @@
     "lodash" "^4.17.14"
     "slice-ansi" "^2.1.0"
     "string-width" "^3.0.0"
+
+"testcafe-reporter-html@^1.4.6":
+  "integrity" "sha512-P3JNxLnl0UaL5hc3Cn4LYYioHgASF5PNTOS34Ym7ClOIU4CnPAe+JruruNvLA3Jf5ZHSd+ix57xAci/Y7mEDmw=="
+  "resolved" "https://registry.npmjs.org/testcafe-reporter-html/-/testcafe-reporter-html-1.4.6.tgz"
+  "version" "1.4.6"
 
 "testcafe-reporter-slack@^0.0.6":
   "integrity" "sha512-pToxZ+XgqrYuvmA5JT+zwWQ6QRFpMUPPnSdKViFMVxc/3Acn8qdMLUMEmpy89alZWVzO9RLf99zXxBPaiu2O7Q=="
