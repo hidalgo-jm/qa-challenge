@@ -9,7 +9,8 @@
     "loginScenariosWin10": "testcafe 'browserstack:firefox@83.0:Windows 10' ./fixtures/loginScenarios.js --reporter html:reports/report.html",
     "todoistScenariosWin10": "testcafe 'browserstack:firefox@83.0:Windows 10'  ./fixtures/todoistScenarios.js --reporter html:reports/report.html",
     "loginScenariosParallel": "testcafe 'browserstack:firefox@83.0:Windows 10','browserstack:edge@87.0:Windows 10' ./fixtures/loginScenarios.js --reporter html:reports/report.html",
-    "todoistScenariosParallel": "testcafe 'browserstack:firefox@83.0:Windows 10','browserstack:edge@87.0:Windows 10' ./fixtures/todoistScenarios.js --reporter html:reports/report.html"
+    "todoistScenariosParallel": "testcafe 'browserstack:firefox@83.0:Windows 10','browserstack:edge@87.0:Windows 10' ./fixtures/todoistScenarios.js --reporter html:reports/report.html",
+    "todoistAPItests": "newman run TodoistAPI.json -e TodoistEnvironment.json -r cli,htmlextra --reporter-htmlextra-export 'reports/Todoist API Test Report.html' --reporter-htmlextra-title 'Todoist API Test Report'"
   },
   "repository": {
     "type": "git",
@@ -25,6 +26,7 @@
     "dotenv": "^8.2.0",
     "eslint": "6.5.1",
     "jenkins": "^0.28.1",
+    "newman-reporter-htmlextra": "^1.19.6",
     "testcafe-reporter-html": "^1.4.6",
     "testcafe-reporter-slack": "^0.0.6"
   }
