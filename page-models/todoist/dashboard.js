@@ -35,8 +35,7 @@ class Dashboard {
 
     async clickAddTask () {
         await t
-            .click(this.addTaskButton)                                                              // Click on Add Task button
-            .wait(3000);                                                                            // Wait 3 seconds for Add Task textbox to load
+            .click(this.addTaskButton);                                                             // Click on Add Task button
     }
 
     async setNewTaskNameAndAdd (taskName) {
