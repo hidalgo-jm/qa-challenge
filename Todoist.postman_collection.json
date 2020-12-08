@@ -1,0 +1,1223 @@
+{
+	"info": {
+		"_postman_id": "d6fe374d-35a9-485f-ab83-af1a85abde0c",
+		"name": "Todoist",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Projects",
+			"item": [
+				{
+					"name": "Get all Projects",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "61ae4b48-bece-4a86-9c2d-e519609c8578",
+								"exec": [
+									"// Parse the response json for testing",
+									"responseJson = pm.response.json();",
+									"",
+									"// Validate response code is 200",
+									"pm.test(\"The response has Success (200) code\", () => {",
+									"    pm.expect(pm.response.code).to.eql(200);  ",
+									"});",
+									"",
+									"// Response time",
+									"pm.test(\"Response time is less than 1000ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(1000);",
+									"});",
+									"",
+									"// Validate projects values from the response",
+									"pm.test(\"The response has all current projects\", () => {",
+									"    if (pm.response.code === 200) {",
+									"        projects = responseJson.projects;",
+									"",
+									"        // Display in console: 1) Number of Projects from response, 2) Projects from response",
+									"        console.log(\"Current Projects number: \" + projects.length);",
+									"        console.log(projects);",
+									"",
+									"        // Store current number of projects",
+									"        postman.setEnvironmentVariable(\"currentProjectsTotal\", projects.length);",
+									"        postman.setEnvironmentVariable(\"newProjectIndex\", projects.length + 1);",
+									"",
+									"        // Assert number of projects from response and stored variable",
+									"        pm.expect(projects).to.have.lengthOf(pm.environment.get(\"currentProjectsTotal\"));",
+									"",
+									"        // Store Sync Token value",
+									"        postman.setEnvironmentVariable(\"syncToken\", responseJson.sync_token);",
+									"",
+									"        // Store Last Added Project ID",
+									"        postman.setEnvironmentVariable(\"lastAddedProjectID\", projects[projects.length-1].id);",
+									"        postman.setEnvironmentVariable(\"lastAddedProjectName\", projects[projects.length-1].name);",
+									"    }",
+									"    else {",
+									"        throw new Error (\"Response code was not Success (200)\");",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "token",
+									"value": "{{apiToken}}",
+									"type": "text"
+								},
+								{
+									"key": "sync_token",
+									"value": "*",
+									"type": "text"
+								},
+								{
+									"key": "resource_types",
+									"value": "[\"projects\"]",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://api.todoist.com/sync/v8/sync",
+							"protocol": "https",
+							"host": [
+								"api",
+								"todoist",
+								"com"
+							],
+							"path": [
+								"sync",
+								"v8",
+								"sync"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create a new Project",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "a32a8354-25c5-4e86-91c9-57f771aa0f1e",
+								"exec": [
+									"// Import UUID library",
+									"var uuid = require('uuid');",
+									"",
+									"// Generate and store temp_id and guid values",
+									"postman.setEnvironmentVariable(\"tempid\", uuid.v4());",
+									"postman.setEnvironmentVariable(\"guid\", uuid.v4());",
+									"",
+									"// Display in console generated values",
+									"console.log(\"Temp_ID value: \" + pm.environment.get(\"tempid\"));",
+									"console.log(\"GUID value: \" + pm.environment.get(\"guid\"));"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "4950d8fe-d4a3-4b3f-a4e9-5188577605c6",
+								"exec": [
+									"// Parse the response json for testing",
+									"responseJson = pm.response.json();",
+									"",
+									"",
+									"pm.test(\"The response has Success (200) code\", () => {",
+									"    // Validate response code is 200",
+									"    pm.expect(pm.response.code).to.eql(200);  ",
+									"});",
+									"",
+									"// Response time",
+									"pm.test(\"Response time is less than 3000ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(3000);",
+									"});",
+									"",
+									"pm.test(\"The new project has been successfully added\", () => {  ",
+									"    if (pm.response.code === 200) {",
+									"        // Validate Update OK status in response        ",
+									"        if (JSON.stringify(responseJson).includes(\"ok\")) {",
+									"            // Get Child Order from added project",
+									"            newTotalProjects = responseJson.projects[responseJson.projects.length-1].child_order + 1;",
+									"",
+									"            // Set expected value (Current plus 1)",
+									"            expectedTotalProjectsNumber = Number(pm.environment.get(\"currentProjectsTotal\")) + 1;",
+									"",
+									"            // Assert number of projects from response and stored variable",
+									"            pm.expect(newTotalProjects).to.be.eql(expectedTotalProjectsNumber); ",
+									"",
+									"            // Store current number of projects",
+									"            postman.setEnvironmentVariable(\"currentProjectsTotal\", newTotalProjects);",
+									"            postman.setEnvironmentVariable(\"newProjectIndex\", newTotalProjects + 1);",
+									"",
+									"            // Store Last Added Project ID",
+									"            postman.setEnvironmentVariable(\"lastAddedProjectID\", responseJson.projects[responseJson.projects.length-1].id);",
+									"            postman.setEnvironmentVariable(\"lastAddedProjectName\", responseJson.projects[responseJson.projects.length-1].name);",
+									"        }",
+									"        else {",
+									"            throw new Error (\"Create new Project response was not successful (OK)\");",
+									"        }",
+									"    }",
+									"    else {",
+									"        throw new Error (\"Response code was not Success (200)\");",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "token",
+									"value": "{{apiToken}}",
+									"type": "text"
+								},
+								{
+									"key": "sync_token",
+									"value": "{{syncToken}}",
+									"type": "text"
+								},
+								{
+									"key": "resource_types",
+									"value": "[\"projects\"]",
+									"type": "text"
+								},
+								{
+									"key": "commands",
+									"value": "[\n        { \"type\": \"project_add\",\n          \"temp_id\": \"{{tempid}}\",\n          \"uuid\": \"{{guid}}\",\n          \"args\": { \"name\": \"Project{{newProjectIndex}}\" } }\n      ]",
+									"type": "text"
+								}
+							],
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://api.todoist.com/sync/v8/sync",
+							"protocol": "https",
+							"host": [
+								"api",
+								"todoist",
+								"com"
+							],
+							"path": [
+								"sync",
+								"v8",
+								"sync"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get a Project",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "52320b52-8f9d-4c49-8ae5-cc5eac072e03",
+								"exec": [
+									"// Parse the response json for testing",
+									"responseJson = pm.response.json();",
+									"",
+									"// Validate response code is 200",
+									"pm.test(\"The response has Success (200) code\", () => {",
+									"    pm.expect(pm.response.code).to.eql(200);  ",
+									"});",
+									"",
+									"// Response time",
+									"pm.test(\"Response time is less than 1000ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(1000);",
+									"});",
+									"",
+									"// Validate target project is found",
+									"pm.test(\"The project '\" + pm.environment.get(\"targetProjectName\").toUpperCase() + \"' was found in the response\", () => {",
+									"    if (pm.response.code === 200) {",
+									"        // Get projects from the response",
+									"        projects = responseJson.projects;",
+									"",
+									"        // Filter projects and get the target project",
+									"        targetProject = responseJson.projects.filter(p => p.name === pm.environment.get(\"targetProjectName\"));   ",
+									"",
+									"        // Store current number of projects",
+									"        postman.setEnvironmentVariable(\"currentProjectsTotal\", projects.length);",
+									"        postman.setEnvironmentVariable(\"newProjectIndex\", projects.length + 1);",
+									"",
+									"        // Assert number target project is found",
+									"        pm.expect(targetProject).to.have.lengthOf(1);",
+									"",
+									"        // Display Project array in console",
+									"        console.log(targetProject);",
+									"",
+									"        // Store target Project ID",
+									"        postman.setEnvironmentVariable(\"targetProjectID\", targetProject[0].id);",
+									"    }",
+									"    else {",
+									"        throw new Error (\"Response code was not Success (200)\");",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "token",
+									"value": "{{apiToken}}",
+									"type": "text"
+								},
+								{
+									"key": "sync_token",
+									"value": "*",
+									"type": "text"
+								},
+								{
+									"key": "resource_types",
+									"value": "[\"projects\"]",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://api.todoist.com/sync/v8/sync",
+							"protocol": "https",
+							"host": [
+								"api",
+								"todoist",
+								"com"
+							],
+							"path": [
+								"sync",
+								"v8",
+								"sync"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update a Project",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "2fe4d056-e64b-4dcd-b0b5-c5f78841274f",
+								"exec": [
+									"// Import UUID library",
+									"var uuid = require('uuid');",
+									"",
+									"// Generate and store guid value",
+									"postman.setEnvironmentVariable(\"guid\", uuid.v4());",
+									"",
+									"// Display in console generated value",
+									"console.log(\"GUID value: \" + pm.environment.get(\"guid\"));"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "c311316d-7750-4de0-881d-3cc81af46f92",
+								"exec": [
+									"// Parse the response json for testing",
+									"responseJson = pm.response.json();",
+									"",
+									"// Validate response code is 200",
+									"pm.test(\"The response has Success (200) code\", () => {",
+									"    pm.expect(pm.response.code).to.eql(200);  ",
+									"});",
+									"",
+									"// Response time",
+									"pm.test(\"Response time is less than 1000ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(1000);",
+									"});",
+									"",
+									"// Validate target project was updated",
+									"pm.test(\"The project '\" + pm.environment.get(\"targetProjectName\").toUpperCase() + \"' name was updated to '\" + pm.environment.get(\"targetProjectNameAlt\").toUpperCase() + \"'\", () => {",
+									"    if (pm.response.code === 200) {",
+									"        // Validate Update OK status in response",
+									"        if (JSON.stringify(responseJson).includes(\"ok\")) {",
+									"            // Get Target Project names",
+									"            targetProjectName = pm.environment.get(\"targetProjectName\");",
+									"            targetProjectNameAlt = pm.environment.get(\"targetProjectNameAlt\");",
+									"",
+									"            // Update Target Project references",
+									"            postman.setEnvironmentVariable(\"targetProjectName\", targetProjectNameAlt);",
+									"            postman.setEnvironmentVariable(\"targetProjectNameAlt\", targetProjectName);",
+									"        }",
+									"        else {",
+									"            throw new Error (\"Update Project response was not successful (OK)\");",
+									"        }",
+									"    }",
+									"    else {",
+									"        throw new Error (\"Response code was not Success (200)\");",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "token",
+									"value": "{{apiToken}}",
+									"type": "text"
+								},
+								{
+									"key": "commands",
+									"value": "[\n        { \"type\": \"project_update\",\n          \"uuid\": \"{{guid}}\",\n          \"args\": { \"id\": {{targetProjectID}}, \"name\": \"{{targetProjectNameAlt}}\" } }\n      ]",
+									"type": "text"
+								}
+							],
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://api.todoist.com/sync/v8/sync",
+							"protocol": "https",
+							"host": [
+								"api",
+								"todoist",
+								"com"
+							],
+							"path": [
+								"sync",
+								"v8",
+								"sync"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete a Project",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "20025c76-b730-4e55-a206-bbb15cbf6080",
+								"exec": [
+									"// Import UUID library",
+									"var uuid = require('uuid');",
+									"",
+									"// Generate and store guid value",
+									"postman.setEnvironmentVariable(\"guid\", uuid.v4());",
+									"",
+									"// Display in console generated value",
+									"console.log(\"GUID value: \" + pm.environment.get(\"guid\"));"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "21f5be03-950e-4db3-bd0b-928244f71261",
+								"exec": [
+									"// Parse the response json for testing",
+									"responseJson = pm.response.json();",
+									"",
+									"// Validate response code is 200",
+									"pm.test(\"The response has Success (200) code\", () => {",
+									"    pm.expect(pm.response.code).to.eql(200);  ",
+									"});",
+									"",
+									"// Response time",
+									"pm.test(\"Response time is less than 1000ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(1000);",
+									"});",
+									"",
+									"// Validate target project was updated",
+									"pm.test(\"The project with ID '\" + pm.environment.get(\"lastAddedProjectName\").toUpperCase() + \"' was Deleted\", () => {",
+									"    if (pm.response.code === 200) {",
+									"        // Validate Update OK status in response        ",
+									"        if (JSON.stringify(responseJson).includes(\"ok\")) {",
+									"            // Store current number of projects",
+									"            postman.setEnvironmentVariable(\"currentProjectsTotal\", Number(pm.environment.get(\"currentProjectsTotal\")) - 1);",
+									"            postman.setEnvironmentVariable(\"newProjectIndex\", Number(pm.environment.get(\"newProjectIndex\")) - 1);",
+									"        }",
+									"        else {",
+									"            throw new Error (\"Delete Project response was not successful (OK)\");",
+									"        }",
+									"    }",
+									"    else {",
+									"        throw new Error (\"Response code was not Success (200)\");",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "token",
+									"value": "{{apiToken}}",
+									"type": "text"
+								},
+								{
+									"key": "commands",
+									"value": "[\n        { \"type\": \"project_delete\",\n          \"uuid\": \"{{guid}}\",\n          \"args\": { \"id\": {{lastAddedProjectID}}} }\n      ]",
+									"type": "text"
+								}
+							],
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://api.todoist.com/sync/v8/sync",
+							"protocol": "https",
+							"host": [
+								"api",
+								"todoist",
+								"com"
+							],
+							"path": [
+								"sync",
+								"v8",
+								"sync"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get a Project (Negative)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "5922f0a6-e153-4eba-b737-20d4919848d1",
+								"exec": [
+									"// Parse the response json for testing",
+									"responseJson = pm.response.json();",
+									"",
+									"// Validate response code is 200",
+									"pm.test(\"The response has Success (200) code\", () => {",
+									"    pm.expect(pm.response.code).to.eql(200);  ",
+									"});",
+									"",
+									"// Response time",
+									"pm.test(\"Response time is less than 1000ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(1000);",
+									"});",
+									"",
+									"// Validate target project is found",
+									"pm.test(\"The project 'Project ABC123' was not found in the response\", () => {",
+									"    if (pm.response.code === 200) {",
+									"        // Get projects from the response",
+									"        projects = responseJson.projects;",
+									"",
+									"        // Filter projects and get the target project",
+									"        targetProject = responseJson.projects.filter(p => p.name === \"Project ABC123\");   ",
+									"",
+									"        // Assert number target project is found",
+									"        pm.expect(targetProject).to.have.lengthOf(0);",
+									"    }",
+									"    else {",
+									"        throw new Error (\"Response code was not Success (200)\");",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "token",
+									"value": "{{apiToken}}",
+									"type": "text"
+								},
+								{
+									"key": "sync_token",
+									"value": "*",
+									"type": "text"
+								},
+								{
+									"key": "resource_types",
+									"value": "[\"projects\"]",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://api.todoist.com/sync/v8/sync",
+							"protocol": "https",
+							"host": [
+								"api",
+								"todoist",
+								"com"
+							],
+							"path": [
+								"sync",
+								"v8",
+								"sync"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Tasks",
+			"item": [
+				{
+					"name": "Get active Tasks",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "795c19c7-3ff8-4e3f-a6a8-de1c85653916",
+								"exec": [
+									"// Parse the response json for testing",
+									"responseJson = pm.response.json();",
+									"",
+									"// Validate response code is 200",
+									"pm.test(\"The response has Success (200) code\", () => {",
+									"    pm.expect(pm.response.code).to.eql(200);  ",
+									"});",
+									"",
+									"// Response time",
+									"pm.test(\"Response time is less than 1000ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(1000);",
+									"});",
+									"",
+									"// Validate all active tasks are retrieved successfully",
+									"pm.test(\"Active tasks are retrieved successfully\", () => {",
+									"    if (pm.response.code === 200) {",
+									"        // If response contains at least 1 active task",
+									"        if (responseJson.length > 0) {",
+									"            // Display in console total number of Active Tasks and info",
+									"            console.log (\"Total current active tasks: \" + responseJson.length);",
+									"            console.log (responseJson);",
+									"        }",
+									"    }",
+									"    else {",
+									"        throw new Error (\"Response code was not Success (200)\");",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{apiToken}}"
+							}
+						],
+						"url": {
+							"raw": "https://api.todoist.com/rest/v1/tasks",
+							"protocol": "https",
+							"host": [
+								"api",
+								"todoist",
+								"com"
+							],
+							"path": [
+								"rest",
+								"v1",
+								"tasks"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create a new task",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "9e048382-2383-4c1b-9055-78de7b9ff3fe",
+								"exec": [
+									"// Parse the response json for testing",
+									"responseJson = pm.response.json();",
+									"",
+									"// Validate response code is 200",
+									"pm.test(\"The response has Success (200) code\", () => {",
+									"    pm.expect(pm.response.code).to.eql(200);",
+									"});",
+									"",
+									"// Response time",
+									"pm.test(\"Response time is less than 1000ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(1000);",
+									"});",
+									"",
+									"// Create a new task",
+									"pm.test(\"Create a new task\", () => {",
+									"    if (pm.response.code === 200) {",
+									"        postman.setEnvironmentVariable(\"currentInboxTasks\", Number(pm.environment.get(\"currentInboxTasks\")) + 1);",
+									"        postman.setEnvironmentVariable(\"newInboxTaskIndex\", Number(pm.environment.get(\"newInboxTaskIndex\")) + 1);",
+									"        postman.setEnvironmentVariable(\"lastAddedTaskID\", responseJson.id);",
+									"    }",
+									"    else {",
+									"        throw new Error(\"Response code was not Success (200)\");",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "f730a582-d41d-41e3-b93a-544439e11b20",
+								"exec": [
+									"// Import UUID library",
+									"var uuid = require('uuid');",
+									"",
+									"// Generate and store guid value",
+									"postman.setEnvironmentVariable(\"guid\", uuid.v4());",
+									"",
+									"// Display in console generated value",
+									"console.log(\"GUID value: \" + pm.environment.get(\"guid\"));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Request-Id",
+								"value": "{{guid}}"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{apiToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"content\": \"Task{{newInboxTaskIndex}}\",\n    \"due_string\": \"\",\n    \"due_lang\": \"\",\n    \"priority\": 1\n}"
+						},
+						"url": {
+							"raw": "https://api.todoist.com/rest/v1/tasks",
+							"protocol": "https",
+							"host": [
+								"api",
+								"todoist",
+								"com"
+							],
+							"path": [
+								"rest",
+								"v1",
+								"tasks"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get an active task",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "55f42a88-d1de-4ea5-b5b4-5497ac80b32b",
+								"exec": [
+									"// Parse the response json for testing",
+									"responseJson = pm.response.json();",
+									"",
+									"// Validate response code is 200",
+									"pm.test(\"The response has Success (200) code\", () => {",
+									"    pm.expect(pm.response.code).to.eql(200);  ",
+									"});",
+									"",
+									"// Response time",
+									"pm.test(\"Response time is less than 1000ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(1000);",
+									"});",
+									"",
+									"// Get an active task",
+									"pm.test(\"Active task is retrieved successfully\", () => {",
+									"    if (pm.response.code === 200) {",
+									"        // Print in Console retrieved Task info",
+									"        console.log(responseJson);",
+									"    }",
+									"    else {",
+									"        throw new Error (\"Response code was not Success (200)\");",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "d3b71d7c-8538-45f6-8485-497429bf2d2a",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{apiToken}}"
+							}
+						],
+						"url": {
+							"raw": "https://api.todoist.com/rest/v1/tasks/{{targetTaskID}}",
+							"protocol": "https",
+							"host": [
+								"api",
+								"todoist",
+								"com"
+							],
+							"path": [
+								"rest",
+								"v1",
+								"tasks",
+								"{{targetTaskID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update a task",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "98620881-98bf-44d4-befb-84c967131209",
+								"exec": [
+									"// Import UUID library",
+									"var uuid = require('uuid');",
+									"",
+									"// Generate and store guid value",
+									"postman.setEnvironmentVariable(\"guid\", uuid.v4());",
+									"",
+									"// Display in console generated value",
+									"console.log(\"GUID value: \" + pm.environment.get(\"guid\"));",
+									"",
+									"// Generate random string and store in environment variables",
+									"randomString = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5);",
+									"postman.setEnvironmentVariable(\"randomString\", randomString);",
+									"postman.setEnvironmentVariable(\"newTaskName\", \"Lunch_\" + randomString);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "c0b51470-02fd-424a-9e12-b7b98c3410cf",
+								"exec": [
+									"// Validate response code is 204",
+									"pm.test(\"The response has 'No Content' (204) code\", () => {",
+									"    pm.expect(pm.response.code).to.eql(204);  ",
+									"});",
+									"",
+									"// Response time",
+									"pm.test(\"Response time is less than 3000ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(3000);",
+									"});",
+									"",
+									"// Update a task",
+									"pm.test(\"Task with ID '\" + pm.environment.get(\"targetTaskID\") + \"' updated successfully\", () => {",
+									"    if (pm.response.code === 204) {",
+									"        // Print in Console retrieved Task info",
+									"        console.log(\"Task with ID '\" + pm.environment.get(\"targetTaskID\") + \"' was updated successfully\");",
+									"    }",
+									"    else {",
+									"        throw new Error (\"Response code was not 'No Content' (204)\");",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Request-Id",
+								"value": "{{guid}}"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{apiToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"content\": \"newTaskName\"}"
+						},
+						"url": {
+							"raw": "https://api.todoist.com/rest/v1/tasks/{{targetTaskID}}",
+							"protocol": "https",
+							"host": [
+								"api",
+								"todoist",
+								"com"
+							],
+							"path": [
+								"rest",
+								"v1",
+								"tasks",
+								"{{targetTaskID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Close a task",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "ffdd0202-4027-47d8-bc3a-ded31e5fb4f1",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "4a250266-dc8a-4b1c-b6d8-1927f2434507",
+								"exec": [
+									"// Validate response code is 204",
+									"pm.test(\"The response has 'No Content' (204) code\", () => {",
+									"    pm.expect(pm.response.code).to.eql(204);  ",
+									"});",
+									"",
+									"// Response time",
+									"pm.test(\"Response time is less than 3000ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(3000);",
+									"});",
+									"",
+									"// Close a task",
+									"pm.test(\"Task with ID '\" + pm.environment.get(\"lastAddedTaskID\") + \"' successfully closed\", () => {",
+									"    if (pm.response.code === 204) {",
+									"        // Print in Console retrieved Task info",
+									"        console.log(\"Task with ID '\" + pm.environment.get(\"lastAddedTaskID\") + \"' was successfully closed\");",
+									"    }",
+									"    else {",
+									"        throw new Error (\"Response code was not 'No Content' (204)\");",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{apiToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "https://api.todoist.com/rest/v1/tasks/{{lastAddedTaskID}}/close",
+							"protocol": "https",
+							"host": [
+								"api",
+								"todoist",
+								"com"
+							],
+							"path": [
+								"rest",
+								"v1",
+								"tasks",
+								"{{lastAddedTaskID}}",
+								"close"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reopen a task",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "4a5961b7-6098-4d0c-a74a-75abf023558d",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "89d2a20b-9a3e-4c45-9778-c7acd5217e72",
+								"exec": [
+									"// Validate response code is 204",
+									"pm.test(\"The response has 'No Content' (204) code\", () => {",
+									"    pm.expect(pm.response.code).to.eql(204);  ",
+									"});",
+									"",
+									"// Response time",
+									"pm.test(\"Response time is less than 3000ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(3000);",
+									"});",
+									"",
+									"// Reopen a task",
+									"pm.test(\"Task with ID '\" + pm.environment.get(\"lastAddedTaskID\") + \"' is successfully reopened\", () => {",
+									"    if (pm.response.code === 204) {",
+									"        // Print in Console retrieved Task info",
+									"        console.log(\"Task with ID '\" + pm.environment.get(\"lastAddedTaskID\") + \"' was successfully reopened\");",
+									"    }",
+									"    else {",
+									"        throw new Error (\"Response code was not 'No Content' (204)\");",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{apiToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "https://api.todoist.com/rest/v1/tasks/{{lastAddedTaskID}}/reopen",
+							"protocol": "https",
+							"host": [
+								"api",
+								"todoist",
+								"com"
+							],
+							"path": [
+								"rest",
+								"v1",
+								"tasks",
+								"{{lastAddedTaskID}}",
+								"reopen"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete a task",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "dc5ecaee-ce70-44d8-9d7e-a17b56f6b4d6",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "5baeb431-ff43-43be-94fb-c28e72c2e97b",
+								"exec": [
+									"// Validate response code is 204",
+									"pm.test(\"The response has 'No Content' (204) code\", () => {",
+									"    pm.expect(pm.response.code).to.eql(204);  ",
+									"});",
+									"",
+									"// Response time",
+									"pm.test(\"Response time is less than 3000ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(3000);",
+									"});",
+									"",
+									"// Reopen a task",
+									"pm.test(\"Task with ID '\" + pm.environment.get(\"lastAddedTaskID\") + \"' is deleted successfully\", () => {",
+									"    if (pm.response.code === 204) {",
+									"        // Print in Console retrieved Task info",
+									"        console.log(\"Task with ID '\" + pm.environment.get(\"lastAddedTaskID\") + \"' was successfully deleted\");",
+									"",
+									"        // Update Environment Variables",
+									"        postman.setEnvironmentVariable(\"currentInboxTasks\", Number(pm.environment.get(\"currentInboxTasks\")) - 1);",
+									"        postman.setEnvironmentVariable(\"newInboxTaskIndex\", Number(pm.environment.get(\"newInboxTaskIndex\")) - 1);",
+									"        postman.setEnvironmentVariable(\"lastAddedTaskID\", \"\");",
+									"    }",
+									"    else {",
+									"        throw new Error (\"Response code was not 'No Content' (204)\");",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{apiToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "https://api.todoist.com/rest/v1/tasks/{{lastAddedTaskID}}",
+							"protocol": "https",
+							"host": [
+								"api",
+								"todoist",
+								"com"
+							],
+							"path": [
+								"rest",
+								"v1",
+								"tasks",
+								"{{lastAddedTaskID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get an active task (Negative)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "f1320c3b-c582-40fe-84e5-63282c1e03f9",
+								"exec": [
+									"// Validate response code is 200",
+									"pm.test(\"The response has Not Found (404) code\", () => {",
+									"    pm.expect(pm.response.code).to.eql(404);  ",
+									"});",
+									"",
+									"// Response time",
+									"pm.test(\"Response time is less than 1000ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(1000);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "f77be70f-7236-46f1-8f22-5caf3bb89f93",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{apiToken}}"
+							}
+						],
+						"url": {
+							"raw": "https://api.todoist.com/rest/v1/tasks/123456789",
+							"protocol": "https",
+							"host": [
+								"api",
+								"todoist",
+								"com"
+							],
+							"path": [
+								"rest",
+								"v1",
+								"tasks",
+								"123456789"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		}
+	],
+	"protocolProfileBehavior": {}
+}
