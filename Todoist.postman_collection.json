@@ -18,6 +18,7 @@
 								"exec": [
 									"// Parse the response json for testing",
 									"responseJson = pm.response.json();",
+									"projects = responseJson.projects;",
 									"",
 									"// Validate response code is 200",
 									"pm.test(\"The response has Success (200) code\", () => {",
@@ -30,9 +31,8 @@
 									"});",
 									"",
 									"// Validate projects values from the response",
-									"pm.test(\"The response has all current projects\", () => {",
+									"pm.test(\"The response returned '\" + projects.length + \"' current projects\", () => {",
 									"    if (pm.response.code === 200) {",
-									"        projects = responseJson.projects;",
 									"",
 									"        // Display in console: 1) Number of Projects from response, 2) Projects from response",
 									"        console.log(\"Current Projects number: \" + projects.length);",
@@ -118,7 +118,12 @@
 									"",
 									"// Display in console generated values",
 									"console.log(\"Temp_ID value: \" + pm.environment.get(\"tempid\"));",
-									"console.log(\"GUID value: \" + pm.environment.get(\"guid\"));"
+									"console.log(\"GUID value: \" + pm.environment.get(\"guid\"));",
+									"",
+									"// Generate new project name",
+									"randomString = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5);",
+									"postman.setEnvironmentVariable(\"randomString\", randomString);",
+									"postman.setEnvironmentVariable(\"newItemName\", \"Project_\" + randomString);"
 								],
 								"type": "text/javascript"
 							}
@@ -142,7 +147,7 @@
 									"    pm.expect(pm.response.responseTime).to.be.below(3000);",
 									"});",
 									"",
-									"pm.test(\"The new project has been successfully added\", () => {  ",
+									"pm.test(\"Create a new project '\" + pm.environment.get(\"newItemName\") + \"'\", () => {",
 									"    if (pm.response.code === 200) {",
 									"        // Validate Update OK status in response        ",
 									"        if (JSON.stringify(responseJson).includes(\"ok\")) {",
@@ -199,7 +204,7 @@
 								},
 								{
 									"key": "commands",
-									"value": "[\n        { \"type\": \"project_add\",\n          \"temp_id\": \"{{tempid}}\",\n          \"uuid\": \"{{guid}}\",\n          \"args\": { \"name\": \"Project{{newProjectIndex}}\" } }\n      ]",
+									"value": "[\n        { \"type\": \"project_add\",\n          \"temp_id\": \"{{tempid}}\",\n          \"uuid\": \"{{guid}}\",\n          \"args\": { \"name\": \"{{newItemName}}\" } }\n      ]",
 									"type": "text"
 								}
 							],
@@ -248,13 +253,13 @@
 									"});",
 									"",
 									"// Validate target project is found",
-									"pm.test(\"The project '\" + pm.environment.get(\"targetProjectName\").toUpperCase() + \"' was found in the response\", () => {",
+									"pm.test(\"The project '\" + pm.environment.get(\"lastAddedProjectName\") + \"' is found in the response\", () => {",
 									"    if (pm.response.code === 200) {",
 									"        // Get projects from the response",
 									"        projects = responseJson.projects;",
 									"",
 									"        // Filter projects and get the target project",
-									"        targetProject = responseJson.projects.filter(p => p.name === pm.environment.get(\"targetProjectName\"));   ",
+									"        targetProject = responseJson.projects.filter(p => p.name === pm.environment.get(\"lastAddedProjectName\"));   ",
 									"",
 									"        // Store current number of projects",
 									"        postman.setEnvironmentVariable(\"currentProjectsTotal\", projects.length);",
@@ -265,9 +270,6 @@
 									"",
 									"        // Display Project array in console",
 									"        console.log(targetProject);",
-									"",
-									"        // Store target Project ID",
-									"        postman.setEnvironmentVariable(\"targetProjectID\", targetProject[0].id);",
 									"    }",
 									"    else {",
 									"        throw new Error (\"Response code was not Success (200)\");",
@@ -333,7 +335,12 @@
 									"postman.setEnvironmentVariable(\"guid\", uuid.v4());",
 									"",
 									"// Display in console generated value",
-									"console.log(\"GUID value: \" + pm.environment.get(\"guid\"));"
+									"console.log(\"GUID value: \" + pm.environment.get(\"guid\"));",
+									"",
+									"// Generate new project name",
+									"randomString = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5);",
+									"postman.setEnvironmentVariable(\"randomString\", randomString);",
+									"postman.setEnvironmentVariable(\"newItemName\", \"Project_\" + randomString);"
 								],
 								"type": "text/javascript"
 							}
@@ -357,17 +364,15 @@
 									"});",
 									"",
 									"// Validate target project was updated",
-									"pm.test(\"The project '\" + pm.environment.get(\"targetProjectName\").toUpperCase() + \"' name was updated to '\" + pm.environment.get(\"targetProjectNameAlt\").toUpperCase() + \"'\", () => {",
+									"pm.test(\"Project '\" + pm.environment.get(\"lastAddedProjectName\") + \"' with ID '\" + pm.environment.get(\"lastAddedProjectID\") + \"' is successfully updated to '\" + pm.environment.get(\"newItemName\") + \"'\", () => {",
 									"    if (pm.response.code === 200) {",
 									"        // Validate Update OK status in response",
 									"        if (JSON.stringify(responseJson).includes(\"ok\")) {",
-									"            // Get Target Project names",
-									"            targetProjectName = pm.environment.get(\"targetProjectName\");",
-									"            targetProjectNameAlt = pm.environment.get(\"targetProjectNameAlt\");",
+									"            // Display in Console result",
+									"            console.log (\"Project '\" + pm.environment.get(\"lastAddedProjectName\") + \"' with ID '\" + pm.environment.get(\"lastAddedProjectID\") + \"' was successfully updated to '\" + pm.environment.get(\"newItemName\") + \"'\");",
 									"",
-									"            // Update Target Project references",
-									"            postman.setEnvironmentVariable(\"targetProjectName\", targetProjectNameAlt);",
-									"            postman.setEnvironmentVariable(\"targetProjectNameAlt\", targetProjectName);",
+									"            // Update variable",
+									"            postman.setEnvironmentVariable(\"lastAddedProjectName\", pm.environment.get(\"newItemName\"));",
 									"        }",
 									"        else {",
 									"            throw new Error (\"Update Project response was not successful (OK)\");",
@@ -395,7 +400,7 @@
 								},
 								{
 									"key": "commands",
-									"value": "[\n        { \"type\": \"project_update\",\n          \"uuid\": \"{{guid}}\",\n          \"args\": { \"id\": {{targetProjectID}}, \"name\": \"{{targetProjectNameAlt}}\" } }\n      ]",
+									"value": "[\n        { \"type\": \"project_update\",\n          \"uuid\": \"{{guid}}\",\n          \"args\": { \"id\": {{lastAddedProjectID}}, \"name\": \"{{newItemName}}\" } }\n      ]",
 									"type": "text"
 								}
 							],
@@ -460,11 +465,14 @@
 									"    pm.expect(pm.response.responseTime).to.be.below(1000);",
 									"});",
 									"",
-									"// Validate target project was updated",
-									"pm.test(\"The project with ID '\" + pm.environment.get(\"lastAddedProjectName\").toUpperCase() + \"' was Deleted\", () => {",
+									"// Validate target project is deleted",
+									"pm.test(\"Project '\" + pm.environment.get(\"lastAddedProjectName\") + \"' is sucessfully deleted\", () => {",
 									"    if (pm.response.code === 200) {",
 									"        // Validate Update OK status in response        ",
 									"        if (JSON.stringify(responseJson).includes(\"ok\")) {",
+									"            // Display in console result",
+									"            console.log (\"Project '\" + pm.environment.get(\"lastAddedProjectName\") + \"' was sucessfully deleted\");",
+									"",
 									"            // Store current number of projects",
 									"            postman.setEnvironmentVariable(\"currentProjectsTotal\", Number(pm.environment.get(\"currentProjectsTotal\")) - 1);",
 									"            postman.setEnvironmentVariable(\"newProjectIndex\", Number(pm.environment.get(\"newProjectIndex\")) - 1);",
@@ -543,7 +551,7 @@
 									"    pm.expect(pm.response.responseTime).to.be.below(1000);",
 									"});",
 									"",
-									"// Validate target project is found",
+									"// Validate target project is not found",
 									"pm.test(\"The project 'Project ABC123' was not found in the response\", () => {",
 									"    if (pm.response.code === 200) {",
 									"        // Get projects from the response",
@@ -631,7 +639,7 @@
 									"    pm.expect(pm.response.responseTime).to.be.below(1000);",
 									"});",
 									"",
-									"// Validate all active tasks are retrieved successfully",
+									"// Get active Tasks",
 									"pm.test(\"Active tasks are retrieved successfully\", () => {",
 									"    if (pm.response.code === 200) {",
 									"        // If response contains at least 1 active task",
@@ -692,15 +700,16 @@
 									"});",
 									"",
 									"// Response time",
-									"pm.test(\"Response time is less than 1000ms\", function () {",
-									"    pm.expect(pm.response.responseTime).to.be.below(1000);",
+									"pm.test(\"Response time is less than 3000ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(3000);",
 									"});",
 									"",
 									"// Create a new task",
-									"pm.test(\"Create a new task\", () => {",
+									"pm.test(\"Create a new task with name '\" + pm.environment.get(\"newItemName\") + \"' with ID '\" + responseJson.id + \"'\", () => {",
 									"    if (pm.response.code === 200) {",
 									"        postman.setEnvironmentVariable(\"currentInboxTasks\", Number(pm.environment.get(\"currentInboxTasks\")) + 1);",
 									"        postman.setEnvironmentVariable(\"newInboxTaskIndex\", Number(pm.environment.get(\"newInboxTaskIndex\")) + 1);",
+									"        postman.setEnvironmentVariable(\"lastAddedTaskName\", pm.environment.get(\"newItemName\"));",
 									"        postman.setEnvironmentVariable(\"lastAddedTaskID\", responseJson.id);",
 									"    }",
 									"    else {",
@@ -723,7 +732,12 @@
 									"postman.setEnvironmentVariable(\"guid\", uuid.v4());",
 									"",
 									"// Display in console generated value",
-									"console.log(\"GUID value: \" + pm.environment.get(\"guid\"));"
+									"console.log(\"GUID value: \" + pm.environment.get(\"guid\"));",
+									"",
+									"// Generate new item name",
+									"randomString = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5);",
+									"postman.setEnvironmentVariable(\"randomString\", randomString);",
+									"postman.setEnvironmentVariable(\"newItemName\", \"Task_\" + randomString);"
 								],
 								"type": "text/javascript"
 							}
@@ -747,7 +761,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"content\": \"Task{{newInboxTaskIndex}}\",\n    \"due_string\": \"\",\n    \"due_lang\": \"\",\n    \"priority\": 1\n}"
+							"raw": "{\n    \"content\": \"{{newItemName}}\",\n    \"due_string\": \"\",\n    \"due_lang\": \"\",\n    \"priority\": 1\n}"
 						},
 						"url": {
 							"raw": "https://api.todoist.com/rest/v1/tasks",
@@ -788,10 +802,13 @@
 									"});",
 									"",
 									"// Get an active task",
-									"pm.test(\"Active task is retrieved successfully\", () => {",
+									"pm.test(\"Active Task '\" + pm.environment.get(\"lastAddedTaskName\") + \"' with ID '\" + pm.environment.get(\"lastAddedTaskID\") + \"' is successfully retrieved\", () => {",
 									"    if (pm.response.code === 200) {",
-									"        // Print in Console retrieved Task info",
-									"        console.log(responseJson);",
+									"        if (responseJson.length > 0) {",
+									"            // Print in Console retrieved Task info and success message",
+									"            console.log (\"Active Task '\" + pm.environment.get(\"lastAddedTaskName\") + \"' was successfully retrieved\");",
+									"            console.log(responseJson);",
+									"        }",
 									"    }",
 									"    else {",
 									"        throw new Error (\"Response code was not Success (200)\");",
@@ -821,7 +838,7 @@
 							}
 						],
 						"url": {
-							"raw": "https://api.todoist.com/rest/v1/tasks/{{targetTaskID}}",
+							"raw": "https://api.todoist.com/rest/v1/tasks/{{lastAddedTaskID}}",
 							"protocol": "https",
 							"host": [
 								"api",
@@ -832,7 +849,7 @@
 								"rest",
 								"v1",
 								"tasks",
-								"{{targetTaskID}}"
+								"{{lastAddedTaskID}}"
 							]
 						}
 					},
@@ -858,7 +875,7 @@
 									"// Generate random string and store in environment variables",
 									"randomString = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5);",
 									"postman.setEnvironmentVariable(\"randomString\", randomString);",
-									"postman.setEnvironmentVariable(\"newTaskName\", \"Lunch_\" + randomString);"
+									"postman.setEnvironmentVariable(\"newItemName\", \"Task_\" + randomString);"
 								],
 								"type": "text/javascript"
 							}
@@ -879,10 +896,10 @@
 									"});",
 									"",
 									"// Update a task",
-									"pm.test(\"Task with ID '\" + pm.environment.get(\"targetTaskID\") + \"' updated successfully\", () => {",
+									"pm.test(\"Task '\" + pm.environment.get(\"lastAddedTaskName\") + \"' with ID '\" + pm.environment.get(\"lastAddedTaskID\") + \"' is successfully updated to '\" + pm.environment.get(\"newItemName\") + \"'\", () => {",
 									"    if (pm.response.code === 204) {",
 									"        // Print in Console retrieved Task info",
-									"        console.log(\"Task with ID '\" + pm.environment.get(\"targetTaskID\") + \"' was updated successfully\");",
+									"        console.log(\"Task '\" + pm.environment.get(\"lastAddedTaskName\") + \"' with ID '\" + pm.environment.get(\"lastAddedTaskID\") + \"' was successfully updated to '\" + pm.environment.get(\"newItemName\") + \"'\");",
 									"    }",
 									"    else {",
 									"        throw new Error (\"Response code was not 'No Content' (204)\");",
@@ -911,10 +928,10 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\"content\": \"newTaskName\"}"
+							"raw": "{\"content\": \"{{newItemName}}\"}"
 						},
 						"url": {
-							"raw": "https://api.todoist.com/rest/v1/tasks/{{targetTaskID}}",
+							"raw": "https://api.todoist.com/rest/v1/tasks/{{lastAddedTaskID}}",
 							"protocol": "https",
 							"host": [
 								"api",
@@ -925,7 +942,7 @@
 								"rest",
 								"v1",
 								"tasks",
-								"{{targetTaskID}}"
+								"{{lastAddedTaskID}}"
 							]
 						}
 					},
@@ -960,10 +977,10 @@
 									"});",
 									"",
 									"// Close a task",
-									"pm.test(\"Task with ID '\" + pm.environment.get(\"lastAddedTaskID\") + \"' successfully closed\", () => {",
+									"pm.test(\"Task '\" + pm.environment.get(\"lastAddedTaskName\") + \"' with ID '\" + pm.environment.get(\"lastAddedTaskID\") + \"' is successfully closed\", () => {",
 									"    if (pm.response.code === 204) {",
 									"        // Print in Console retrieved Task info",
-									"        console.log(\"Task with ID '\" + pm.environment.get(\"lastAddedTaskID\") + \"' was successfully closed\");",
+									"        console.log(\"Task '\" + pm.environment.get(\"lastAddedTaskName\") + \"' with ID '\" + pm.environment.get(\"lastAddedTaskID\") + \"' was successfully closed\");",
 									"    }",
 									"    else {",
 									"        throw new Error (\"Response code was not 'No Content' (204)\");",
@@ -1034,10 +1051,10 @@
 									"});",
 									"",
 									"// Reopen a task",
-									"pm.test(\"Task with ID '\" + pm.environment.get(\"lastAddedTaskID\") + \"' is successfully reopened\", () => {",
+									"pm.test(\"Task '\" + pm.environment.get(\"lastAddedTaskName\") + \"' with ID '\" + pm.environment.get(\"lastAddedTaskID\") + \"' is successfully reopened\", () => {",
 									"    if (pm.response.code === 204) {",
 									"        // Print in Console retrieved Task info",
-									"        console.log(\"Task with ID '\" + pm.environment.get(\"lastAddedTaskID\") + \"' was successfully reopened\");",
+									"        console.log(\"Task '\" + pm.environment.get(\"lastAddedTaskName\") + \"' with ID '\" + pm.environment.get(\"lastAddedTaskID\") + \"' was successfully reopened\");",
 									"    }",
 									"    else {",
 									"        throw new Error (\"Response code was not 'No Content' (204)\");",
@@ -1107,11 +1124,11 @@
 									"    pm.expect(pm.response.responseTime).to.be.below(3000);",
 									"});",
 									"",
-									"// Reopen a task",
-									"pm.test(\"Task with ID '\" + pm.environment.get(\"lastAddedTaskID\") + \"' is deleted successfully\", () => {",
+									"// Delete a task",
+									"pm.test(\"Task '\" + pm.environment.get(\"lastAddedTaskName\") + \"' with ID '\" + pm.environment.get(\"lastAddedTaskID\") + \"' is successfully deleted\", () => {",
 									"    if (pm.response.code === 204) {",
 									"        // Print in Console retrieved Task info",
-									"        console.log(\"Task with ID '\" + pm.environment.get(\"lastAddedTaskID\") + \"' was successfully deleted\");",
+									"        console.log(\"Task '\" + pm.environment.get(\"lastAddedTaskName\") + \"' with ID '\" + pm.environment.get(\"lastAddedTaskID\") + \"' was successfully deleted\");",
 									"",
 									"        // Update Environment Variables",
 									"        postman.setEnvironmentVariable(\"currentInboxTasks\", Number(pm.environment.get(\"currentInboxTasks\")) - 1);",
@@ -1173,6 +1190,17 @@
 									"// Response time",
 									"pm.test(\"Response time is less than 1000ms\", function () {",
 									"    pm.expect(pm.response.responseTime).to.be.below(1000);",
+									"});",
+									"",
+									"// Get active task negative",
+									"pm.test(\"Task with ID '123456789' is not found\", () => {",
+									"    if (pm.response.code === 404) {",
+									"        // Print in Console retrieved Task info",
+									"        console.log(\"Task with ID '123456789' was not found\");",
+									"    }",
+									"    else {",
+									"        throw new Error (\"Response code was not 'Not Found' (404)\");",
+									"    }",
 									"});"
 								],
 								"type": "text/javascript"
